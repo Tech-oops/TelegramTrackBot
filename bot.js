@@ -1,7 +1,9 @@
 const TelegramBot = require('node-telegram-bot-api');
+const fs = require('fs');
+const https = require('https');
+
 const token = '6477885066:AAFjM-M9ECJmkPeQZDu10Q1eHliGMV_F7qM';
 const bot = new TelegramBot(token, { polling: true });
-
 
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
@@ -13,7 +15,6 @@ bot.on('message', (msg) => {
   }
 });
 
-
 bot.onText(/\/start (.+)/, (msg, match) => {
   const chatId = msg.chat.id;
   const linkData = match[1].split('_');
@@ -21,33 +22,39 @@ bot.onText(/\/start (.+)/, (msg, match) => {
   const scanCount = linkData[1];
 
   // Perform actions based on the link data
-});
 
-// For location scan
-bot.onText(/\/start location_(.+)/, (msg, match) => {
-  const chatId = msg.chat.id;
-  // Get the user's location and send it back
-  bot.sendLocation(chatId, latitude, longitude);
-});
-
-// For photo scan
-bot.onText(/\/start camera_(.+)/, (msg, match) => {
-  const chatId = msg.chat.id;
-  const photoCount = parseInt(match[1]);
-  // Send live photos taken by the camera
-  for (let i = 0; i < photoCount; i++) {
-    bot.sendPhoto(chatId, 'path_to_photo');
+  // For location scan
+  if (scanType === 'location') {
+    // Replace with actual geographical coordinates
+    const latitude = 37.7749;  // Example latitude (e.g., San Francisco)
+    const longitude = -122.4194;  // Example longitude
+    // Get the user's location and send it back
+    bot.sendLocation(chatId, latitude, longitude);
   }
-});
 
-// For photo scan
+  // For photo scan
+  if (scanType === 'camera') {
+    const photoCount = parseInt(scanCount);
+    // Replace with the actual path or URL of the photo
+    const path_to_photo = 'path_to_photo';
+    // Send live photos taken by the camera
+    for (let i = 0; i < photoCount; i++) {
+      bot.sendPhoto(chatId, path_to_photo);
+    }
+  }
+
+  // For mobile info scan
   if (scanType === 'mobile' && scanCount === 'info') {
     const userAgent = msg.from?.userAgent || 'Not available';
     bot.sendMessage(chatId, `User's device information:\n${userAgent}`);
   }
 
-// For photo & location
-if (scanType === 'photo' && scanCount === 'and' && linkData[2] === 'location') {
+  // For photo & location
+  if (scanType === 'photo' && scanCount === 'and' && linkData[2] === 'location') {
+    // Replace with actual geographical coordinates
+    const latitude = 37.7749;  // Example latitude (e.g., San Francisco)
+    const longitude = -122.4194;  // Example longitude
+
     // Send live photos taken by the front camera
     const photoCount = 5; // You can adjust this based on your requirement
     for (let i = 0; i < photoCount; i++) {
@@ -56,10 +63,10 @@ if (scanType === 'photo' && scanCount === 'and' && linkData[2] === 'location') {
 
     // Get the user's location and send it back
     bot.sendLocation(chatId, latitude, longitude);
-  };
+  }
 
-//For audio
-if (scanType === 'audio' && scanCount === 'recording') {
+  // For audio recording
+  if (scanType === 'audio' && scanCount === 'recording') {
     // Request the user to send an audio recording
     bot.sendMessage(chatId, 'Please record an audio message now.');
 
@@ -83,7 +90,6 @@ if (scanType === 'audio' && scanCount === 'recording') {
       });
     });
   }
-
+});
 
 // Implement similar logic for other scan types
-
